@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load fl_extras %}
+
+<div class="row">
+<div class="col">
+  <h2>Список заданий</h2>
+</div>
+
+<div class="col">
+    <ul class="nav mb-2 nav-pills">
+      <li class="nav-item">
+    {% if request.session.cur_tag|default:0 == '*' %}
+    <a href="?cur_tag=*" class="nav-link btn-primary" data-toggle="tooltip" title="Все!"><span class="text-uppercase mr-2 font-weight-bold">все</span> <i class="fa fa-asterisk"></i></a>
+    {% else %}
+    <a href="?cur_tag=*" class="nav-link text-black-50" data-toggle="tooltip" title="Все!"><i class="fa fa-asterisk"></i></a>
+    {% endif%}
+      </li>
+    {% for tt in tts %}
+      <li class="nav-item">
+    {% if tt.id|floatformat == request.session.cur_tag|floatformat and request.session.flt == "0" %}
+    <a href="?cur_tag={{ tt.id }}&flt=1" class="nav-link btn-secondary"><span class="text-uppercase mr-2 font-weight-bold">{{ tt }}</span> {{ tt|faicon:"" }}</a>
+    {% elif tt.id|floatformat == request.session.cur_tag|floatformat and request.session.flt == "1" %}
+    <a href="?cur_tag={{ tt.id }}&flt=0" class="nav-link btn-success"><span class="text-uppercase mr-2 font-weight-bold">{{ tt }}</span> {{ tt|faicon:"" }}</a>
+    {% else %}
+    <a href="?cur_tag={{ tt.id }}&flt=0" class="nav-link">{{ tt|faicon:"text-black-50" }}</a>
+    {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+</div>
+
+<div class="col">
+<form method="get">
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <button class="btn btn-outline-primary" type="button" name="action" value="rst" onclick="location = '{{ request.path }}?action=rst';"><i class="fa fa-asterisk"></i></button>
+      </div>
+      <input type="text" class="form-control" placeholder="Поиск" value="{{ request.session.search|default:"" }}" name="search">
+      <div class="input-group-append">
+        <button class="btn btn-success" type="submit" name="action" value="get"><i class="fa fa-search"></i></button>
+      </div>
+    </div>
+</form>    
+</div>
+</div>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  console.log('sort');
+  $( function() {
+    $( "#sortable" ).sortable({ 
+        scroll: true,
+        stop: function( event, ui ) {
+            var IDs = [];
+            $(this).find("tr").each(function(){ IDs.push(this.id); });
+            console.log(IDs);
+            window.location.href = "{% url 'jobs_list_sort' %}?sortids="+IDs;
+        },
+    });
+    $( "#sortable" ).disableSelection();
+  } );
+  </script>
+
+
+<div class="container-fluid p-1">
+  <table class="table table-hover">
+    <thead>
+      <tr class="bg-light">
+        <th>Нименование</th>
+        <th>Дата создания</th>
+        <th>Теги</th>
+        <th>Операции</th>
+      </tr>
+    </thead>
+    <tbody id='sortable'>
+    {% for job in jobs %}
+      <tr id="{{ job.id }}">
+        <td>{{ job.name }}</td>
+        <td>{{ job.createdatetime }}</td>
+        <td>{% for tt in tts %}<a href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">{% if job|checktag:tt %}{{ tt|faicon:"text-success" }}{% else %}{{ tt|faicon:"text-black-50" }}{% endif %}</a> {% endfor %} 
+        </td>
+        <td>
+        <a href="{% url 'jobs_addedit' %}?id={{ job.id }}"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
+        <a href="{% url 'jobs_del' %}?id={{ job.id }}"><i class="fa fa-remove"  data-toggle="tooltip" data-placement="top" title="Удалить"></i></a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<div class="container-fluid p-1">
+{% with pgn=jobs %}
+{% include 'pagination.html' %}
+{% endwith %}
+</div>
+
+
+
+<script src="/static/reload.js"></script>
+
+{% endblock %}

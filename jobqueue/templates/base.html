@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Система управления заказами</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <button type="button" class="btn btn-secondary dropdown-toggle ml-2 p-2" data-toggle="dropdown">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="dropdown-menu ml-3">
+      <a class="dropdown-item" href="{% url 'jobs_list' %}">Список заданий</a>
+      <a class="dropdown-item" href="{% url 'jobs_addedit' %}">Добавить задание</a>
+      <div class="dropdown-divider"></div>
+      <h5 class="dropdown-header font-weight-bolder">Настройки</h5>
+      <a class="dropdown-item" href="{% url 'tags_list' %}">Список тегов</a>
+      <a class="dropdown-item" href="{% url 'tags_addedit' %}">Добавить тег</a>
+    </div>
+<a class="navbar-brand ml-4 text-uppercase font-weight-lighter" href="{% url 'jobs_list' %}">Управление заказами</a>
+</nav>
+
+{% include 'message.html' %}
+
+<div class="container-fluid" style="margin-top:30px;margin-bottom:30px">
+{% block content %}
+{% endblock %}
+</div>
+
+<div class="container-fluid bg-light text-center" style="margin-bottom:0">
+  <p>(c) Sergey Movchan 2020</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load fl_extras %}
+
+  <script>
+  console.log('sort');
+  $( function() {
+    $( "#sortable" ).sortable({ 
+        scroll: true,
+        stop: function( event, ui ) {
+            var IDs = [];
+            $(this).find("tr").each(function(){ IDs.push(this.id); });
+            console.log(IDs);
+            window.location.href = "{% url 'tags_list_sort' %}?sortids="+IDs;
+        },
+    });
+    $( "#sortable" ).disableSelection();
+  } );
+  </script>
+
+
+  <h2>Список тегов</h2>
+
+  <table class="table table-hover">
+    <thead>
+      <tr class="bg-light">
+        <th>Нименование</th>
+        <th>Icon</th>
+        <th>Операции</th>
+      </tr>
+    </thead>
+    <tbody id='sortable'>
+    {% for tt in tts %}
+      <tr id="{{ tt.id }}">
+        <td>{{ tt.name }}</td>
+        <td>{{ tt|faicon:"text-success" }}</td>
+        <td>
+        <a href="{% url 'tags_addedit' %}?id={{ tt.id }}"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
+        <a href="{% url 'tags_del' %}?id={{ tt.id }}"><i class="fa fa-remove"  data-toggle="tooltip" data-placement="top" title="Удалить"></i></a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+<script src="/static/reload.js"></script>
+
+{% endblock %}
