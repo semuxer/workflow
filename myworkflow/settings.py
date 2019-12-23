@@ -25,7 +25,7 @@ SECRET_KEY = '$%qkvy19@-la%a1q4$91092l1j1o3_2lzk-#-j@if$=g&9)@d('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['semux.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition
@@ -123,3 +123,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
