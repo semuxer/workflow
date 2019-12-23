@@ -69,7 +69,7 @@
     <thead>
       <tr class="bg-light">
         <th>Нименование</th>
-        <th>Дата создания</th>
+        <th>Дата отгрузки</th>
         <th>Теги</th>
         <th>Операции</th>
       </tr>
@@ -78,7 +78,7 @@
     {% for job in jobs %}
       <tr id="{{ job.id }}">
         <td>{{ job.name }}</td>
-        <td>{{ job.createdatetime }}</td>
+        <td>{{ job.shipmentdatetime|date:"Y-m-d H:i D" }}</td>
         <td>{% for tt in tts %}<a href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">{% if job|checktag:tt %}{{ tt|faicon:"text-success" }}{% else %}{{ tt|faicon:"text-black-50" }}{% endif %}</a> {% endfor %} 
         </td>
         <td>
