@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load fl_extras %}
+
+
+
+<div class="card">
+  <div class="card-body">
+<h3>Данные профиля пользователя {{ request.user }}!</h3>
+
+<table class="table-borderless mt-3 mb-3">
+    <tr><td class="text-right pr-2">Логин: </td>            <td class="font-weight-bold">{{ request.user.username }}</td></tr>
+    <tr><td class="text-right pr-2">Email: </td>            <td class="font-weight-bold">{{ request.user.email }}</td></tr>
+    <tr><td class="text-right pr-2">Фамилия: </td>          <td class="font-weight-bold">{{ request.user.first_name }}</td></tr>
+    <tr><td class="text-right pr-2">Имя: </td>              <td class="font-weight-bold">{{ request.user.last_name }}</td></tr>
+    <tr><td class="text-right pr-2">Телефон: </td>          <td class="font-weight-bold">{{ request.user.profile.phone }}</td></tr>
+    <tr><td class="text-right pr-2">Доступ: </td>           <td class="font-weight-bold">{{ request.user.profile.status|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Администратор: </td>    <td class="font-weight-bold">{{ request.user.is_staff|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Суперпользователь: </td><td class="font-weight-bold">{{ request.user.is_superuser|yn }}</td></tr>
+</table>
+    </div>
+</div>
+{% endblock %}

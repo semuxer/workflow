@@ -20,10 +20,10 @@ def checktag(job, tt):
 
 @register.filter
 def faicon(v, color):
-    txt = '<i class="%s %s" data-toggle="tooltip" data-placement="top" title="%s"></i>' % (v.icon2, color, v.name)
-    #txt = '<i class="material-icons %s" data-placement="top" title="%s">%s</i>' % (color, v.name, v.icon2)
-    #txt = v#'<i class="'+v+'"></i>'
-    #print(txt)
+    try:
+        txt = '<i class="%s %s" data-toggle="tooltip" data-placement="top" title="%s"></i>' % (v.icon2, color, v.name)
+    except:
+        txt = ""
     return mark_safe(txt)
 
 @register.filter
@@ -49,3 +49,23 @@ def addcss(v, param):
         v = str(v).replace(">", ' class="%s">' % (param))  
     return mark_safe(v)
 
+@register.filter
+def index(v, param):
+    #print(v, param)
+    #print(v.index(param))
+    try:
+        out = v[param]
+    except:
+        out = ""
+    return out
+
+@register.filter
+def yn(v):
+    if v == True:
+        return "Да"
+    elif v == False:
+        return "Нет"
+    elif v == None:
+        return ""
+    else:
+        return v

@@ -10,8 +10,11 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+  <link rel="stylesheet" href="/static/select.css">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 </head>
 <body>
 
@@ -26,8 +29,13 @@
       <h5 class="dropdown-header font-weight-bolder">Настройки</h5>
       <a class="dropdown-item" href="{% url 'tags_list' %}">Список тегов</a>
       <a class="dropdown-item" href="{% url 'tags_addedit' %}">Добавить тег</a>
+      <a class="dropdown-item" href="{% url 'colors_list' %}">Список цветов</a>
+      <a class="dropdown-item" href="{% url 'colors_addedit' %}">Добавить цвет</a>
     </div>
-<a class="navbar-brand ml-4 text-uppercase font-weight-lighter" href="{% url 'jobs_list' %}">Управление заказами</a>
+  <a class="navbar-brand ml-4 text-uppercase font-weight-lighter" href="{% url 'jobs_list' %}">Управление заказами</a>
+  <div class="ml-auto navbar-brand">{% if request.user.is_authenticated %}
+<i class="fa fa-user"></i> <a href="{% url 'profile_view' %}">{{ request.user }}</a> <a href="{% url 'logout_view' %}"><i class="fa fa-sign-out"></i></a></div>
+{% else %}Авторизируйтесь{% endif %}
 </nav>
 
 {% include 'message.html' %}

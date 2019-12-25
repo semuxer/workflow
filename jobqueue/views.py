@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core import serializers
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Count, F, Func, Q, ExpressionWrapper, Max, Min
-from .models import Jobs, Tagtype
+from .models import *
 from .forms import *
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
@@ -38,6 +38,30 @@ import sys
 import os
 from functools import reduce
 
+################################################################### user
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+def login_view(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        if user.status:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request,"Ошибка при входе. Доступ в систему для данного пользователя закрыт.", extra_tags='danger')
+            return redirect('login')
+    else:
+        messages.error(request,"Ошибка при входе. Проверьте правильность введеных логина и пароля.", extra_tags='danger')
+        return redirect('login')
+
+def profile_view(request):
+    return render(request, 'profile_detail.html', {})
+
+###################################################################
 def str2list(st):
     def  allfunc(sa):
         out = []
@@ -89,9 +113,10 @@ def mypaginator(request, plts, limit=100):
 def sortjobs(request, sortids, mdl):
     try:
         slist = sortids.split(',')
-        sortedslist = slist.copy()
+        print(slist)
+        sortedslist = [int(numeric_string) for numeric_string in slist]
         sortedslist.sort()
-        #print(sortedslist)
+        print(sortedslist)
         i = 0
         for sl in slist:
             item = mdl.objects.get(id=sl)
@@ -105,15 +130,19 @@ def sortjobs(request, sortids, mdl):
         ret = False
     return ret
 
+@login_required
 def home(request):
     return redirect('jobs_list')
+    #return render(request, 'home.html', {} )
 
+@login_required
 def jobs_list_sort(request):
     sortids = request.GET.get('sortids')
     if sortids:
         sortjobs(request, sortids, Jobs)
     return redirect('jobs_list')
 
+@login_required
 def jobs_list(request):
     action = request.GET.get('action')
     print("action",action)
@@ -140,51 +169,127 @@ def jobs_list(request):
             jobs = jobs.filter(tags__name__in=[cur_tag])
     if search:
         slist = str2list(search)
-        jobs = jobs.filter(reduce(operator.or_, (Q(name__icontains=q) for q in slist))).distinct()
-
+        jobs = jobs.filter(
+            reduce(operator.or_, (Q(name__icontains=q) for q in slist)) |
+            reduce(operator.or_, (Q(customer__icontains=q) for q in slist))
+                ).distinct()
     jobs = mypaginator(request,jobs)
+    colors = Colors.objects.all()
+    return render(request, 'jobs_list.html', {'jobs':jobs,'tts':tts, 'curtts':curtts, 'colors':colors, })
 
-    return render(request, 'jobs_list.html', {'jobs':jobs,'tts':tts, 'curtts':curtts,})
-
+@login_required
 def jobs_del(request):
     id = request.GET.get('id')
     job = get_object_or_404(Jobs, id=id)
     job.delete()
     return redirect('jobs_list')
 
+@login_required
 def jobs_addedit(request):
     id = request.GET.get('id')
     if id:
         job = get_object_or_404(Jobs, id=id)
     else:
         job = Jobs()
-    return uform('JobsForm', job, 'jobs_list', request)
+    cont = {}
+    ls = list(Jobs.objects.exclude(customer__exact='').exclude(customer__isnull=True).order_by('customer').values('customer').distinct())
+    cont['customers'] =  ls
+    print(cont)
+    return uform('JobsForm', job, 'jobs_list', request, cont)
 
+@login_required
+def jobs_color_set(request):
+    jid = request.GET.get('jid')
+    job = get_object_or_404(Jobs, id=jid)
+    cid = request.GET.get('color')
+    if cid == "*":
+        job.color = None
+        job.save()
+        return redirect('jobs_list')
+
+    color = get_object_or_404(Colors, id=cid)
+    job.color = color
+    job.save()
+    return redirect('jobs_list')
+
+
+#################################################################### tags
+@login_required
 def tags_list_sort(request):
     sortids = request.GET.get('sortids')
     if sortids:
         sortjobs(request, sortids, Tagtype)
     return redirect('tags_list')
 
+
+@login_required
 def tags_list(request):
     tts = Tagtype.objects.all()
     return render(request, 'tags_list.html', {'tts':tts,} )
 
+@login_required
 def tags_addedit(request):
     id = request.GET.get('id')
     if id:
         tt = get_object_or_404(Tagtype, id=id)
     else:
         tt = Tagtype()
-    return uform('TagtypeForm', tt, 'tags_list', request)
+    ret = uform('TagtypeForm', tt, 'tags_list', request)
+    print("tt.id",tt.id, tt.seton)
+    if tt.seton:
+        jobs = Jobs.objects.all()
+        for job in jobs:
+            job.tags.add(str(tt.id))
+    return ret
 
+@login_required
 def tags_del(request):
     id = request.GET.get('id')
     tt = get_object_or_404(Tagtype, id=id)
+    #jobs = Jobs.objects.all()
+    #jobs.tags.remove(str(tt.id))
     tt.delete()
     return redirect('tags_list')
 
-def uform(fname, inst, rurl, request):
+################################################ Colors
+
+@login_required
+def colors_list_sort(request):
+    sortids = request.GET.get('sortids')
+    if sortids:
+        sortjobs(request, sortids, Colors)
+    return redirect('colors_list')
+
+@login_required
+def colors_list(request):
+    colors = Colors.objects.all()
+
+    ls = list(Jobs.objects.values_list('name', flat=True)[:len(colors)])
+    print(ls)
+    return render(request, 'colors_list.html', {'colors':colors, 'ls':ls} )
+
+@login_required
+def colors_addedit(request):
+    id = request.GET.get('id')
+    if id:
+        color = get_object_or_404(Colors, id=id)
+    else:
+        color = Colors()
+    ret = uform('ColorsForm', color, 'colors_list', request)
+    return ret
+
+@login_required
+def colors_del(request):
+    id = request.GET.get('id')
+    color = get_object_or_404(Colors, id=id)
+    #jobs = Jobs.objects.all()
+    #jobs.tags.remove(str(tt.id))
+    color.delete()
+    return redirect('colors_list')
+
+################################################
+@login_required
+def uform(fname, inst, rurl, request, cont = {}):
     id = request.GET.get('id')
     if request.method == 'POST':
         form = globals()[fname](request.POST, instance=inst)
@@ -200,8 +305,10 @@ def uform(fname, inst, rurl, request):
     else:
         form = globals()[fname](instance=inst)
     print("!!!!!",form.form_title)
-    return render(request, 'form.html', { 'form': form })
+    cont['form'] = form
+    return render(request, 'form.html', cont)
 
+@login_required
 def taglink(request):
     jid = request.GET.get('jid')
     job = get_object_or_404(Jobs, id=jid)
