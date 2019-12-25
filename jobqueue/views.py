@@ -48,7 +48,7 @@ def login_view(request):
     password = request.POST['password']
     user = authenticate(request, username=username, password=password)
     if user is not None:
-        if user.status:
+        if user.profile.status:
             login(request, user)
             return redirect('home')
         else:
