@@ -28,6 +28,11 @@ urlpatterns = [
     url(r'^accounts/loginview/$', views.login_view, name='login_view'),
     url(r'^accounts/logout/$', views.logout_view, name='logout_view'),
     url(r'^accounts/profileview/$', views.profile_view, name='profile_view'),
+    url(r'^accounts/userlist/$', views.user_list, name='user_list'),
+    url(r'^accounts/useradddelright/$', views.user_adddel_right, name='user_adddel_right'),
+    url(r'^accounts/usercreate/$', views.user_create, name='user_create'),
+    url(r'^accounts/useredit/$', views.user_edit, name='user_edit'),
+    url(r'^accounts/userresetpassword/$', views.user_reset_password, name='user_reset_password'),
     #url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     #url(r'^accounts/profile/$', views.profile, name='profile'),
     #url(r'^accounts/profileedit/$', views.profile_edit, name='profile_edit'),
@@ -40,7 +45,7 @@ urlpatterns = [
 #     urlpatterns = [
 #         url(r'^__debug__/', include(debug_toolbar.urls)),
 #     ] + urlpatterns
-    
+
 #if settings.DEBUG:
 #    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

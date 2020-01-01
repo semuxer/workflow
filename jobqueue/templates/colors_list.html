@@ -5,7 +5,7 @@
   <script>
   console.log('sort');
   $( function() {
-    $( "#sortable" ).sortable({ 
+    $( "#sortable" ).sortable({
         delay: 150,
         scroll: true,
         stop: function( event, ui ) {
@@ -27,7 +27,7 @@
       <tr class="bg-light">
         <th>Нименование</th>
         <th>Образец</th>
-        <th>Операции</th>
+        <th class="text-center">Операции</th>
       </tr>
     </thead>
     <tbody id='sortable'>
@@ -35,7 +35,7 @@
       <tr id="{{ color.id }}">
         <td>{{ color.name }}</td>
         <td style="background-color:{{ color.bg }};color:{{ color.text }};">{{ ls|index:forloop.counter0 }}</td>
-        <td>
+        <td class="text-center">
         <a href="{% url 'colors_addedit' %}?id={{ color.id }}"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
         <a href="{% url 'colors_del' %}?id={{ color.id }}"><i class="fa fa-remove" data-toggle="tooltip" data-placement="top" title="Удалить"></i></a>
         </td>

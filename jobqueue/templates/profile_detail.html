@@ -9,15 +9,26 @@
 <h3>Данные профиля пользователя {{ request.user }}!</h3>
 
 <table class="table-borderless mt-3 mb-3">
-    <tr><td class="text-right pr-2">Логин: </td>            <td class="font-weight-bold">{{ request.user.username }}</td></tr>
-    <tr><td class="text-right pr-2">Email: </td>            <td class="font-weight-bold">{{ request.user.email }}</td></tr>
-    <tr><td class="text-right pr-2">Фамилия: </td>          <td class="font-weight-bold">{{ request.user.first_name }}</td></tr>
-    <tr><td class="text-right pr-2">Имя: </td>              <td class="font-weight-bold">{{ request.user.last_name }}</td></tr>
-    <tr><td class="text-right pr-2">Телефон: </td>          <td class="font-weight-bold">{{ request.user.profile.phone }}</td></tr>
-    <tr><td class="text-right pr-2">Доступ: </td>           <td class="font-weight-bold">{{ request.user.profile.status|yn }}</td></tr>
-    <tr><td class="text-right pr-2">Администратор: </td>    <td class="font-weight-bold">{{ request.user.is_staff|yn }}</td></tr>
-    <tr><td class="text-right pr-2">Суперпользователь: </td><td class="font-weight-bold">{{ request.user.is_superuser|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Логин: </td>                                  <td class="font-weight-bold">{{ request.user.username }}</td></tr>
+    <tr><td class="text-right pr-2">Email: </td>                                  <td class="font-weight-bold">{{ request.user.email }}</td></tr>
+    <tr><td class="text-right pr-2">Фамилия: </td>                                <td class="font-weight-bold">{{ request.user.first_name }}</td></tr>
+    <tr><td class="text-right pr-2">Имя: </td>                                    <td class="font-weight-bold">{{ request.user.last_name }}</td></tr>
+    <tr><td class="text-right pr-2">Телефон: </td>                                <td class="font-weight-bold">{{ request.user.profile.phone }}</td></tr>
+    <hr>
+    <tr><td class="text-right pr-2">Доступ к ситеме: </td>                        <td class="font-weight-bold">{{ request.user.profile.status|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Администратор: </td>                          <td class="font-weight-bold">{{ request.user.is_staff|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Суперпользователь: </td>                      <td class="font-weight-bold">{{ request.user.is_superuser|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Создание/редактирование/удаление задач: </td> <td class="font-weight-bold">{{ request.user|chekrights:"task"|yn }}</td></tr>
+    <tr><td class="text-right pr-2">Изменение цвета для задач: </td>                <td class="font-weight-bold">{{ request.user|chekrights:"color"|yn }}</td></tr>
+  {% for tt in tts %}
+    <tr><td class="text-right pr-2">Установка/отмена тега <span class="font-weight-bold font-italic">{{ tt }}</span>:</td>                <td class="font-weight-bold">{{ request.user|chekrights:tt|yn }}</td></tr>
+  {% endfor %}
 </table>
     </div>
 </div>
+<div class="container mt-2">
+  <a href="{% url 'user_edit' %}?uid=self" class="btn btn-info" role="button">Редактировать профиль</a>
+  <a href="{% url 'user_reset_password' %}?uid=self" class="btn btn-info" role="button">Задать пароль</a>
+</div>
+
 {% endblock %}

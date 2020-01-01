@@ -41,7 +41,7 @@
         <button class="btn btn-success" type="submit" name="action" value="get"><i class="fa fa-search"></i></button>
       </div>
     </div>
-</form>    
+</form>
 </div>
 </div>
 
@@ -50,7 +50,7 @@
   <script>
   console.log('sort');
   $( function() {
-    $( "#sortable" ).sortable({ 
+    $( "#sortable" ).sortable({
         delay: 150,
         scroll: true,
         stop: function( event, ui ) {
@@ -72,8 +72,8 @@
         <th>Нименование</th>
         <th>Заказчик</th>
         <th>Дата отгрузки</th>
-        <th>Теги</th>
-        <th>Операции</th>
+        <th class="text-center">Теги</th>
+        <th class="text-center">Операции</th>
       </tr>
     </thead>
     <tbody id='sortable'>
@@ -82,7 +82,7 @@
         <td>{{ job.name }}</td>
         <td>{{ job.customer }}</td>
         <td>{{ job.shipmentdatetime|date:"Y-m-d H:i D" }}</td>
-        <td>
+        <td class="text-center">
         {% for tt in tts %}
                 {% if job|checktag:tt %}
                     <div class="btn-group">
@@ -99,24 +99,24 @@
                         </div>
                     </div>
                 {% endif %}
-        {% endfor %} 
-        <div class="btn-group">
-            <span  class="text-primary" data-toggle="dropdown"><i class="fa fa-paint-brush"></i></span>
-            <div class="dropdown-menu">
-                <a class="dropdown-item " href="{% url 'jobs_color_set' %}?jid={{ job.id }}&color=*">сбросить</a>
-                {% for color in colors %}
-                <a class="dropdown-item " href="{% url 'jobs_color_set' %}?jid={{ job.id }}&color={{ color.id }}" style="background-color:{{ color.bg }};color:{{ color.text }};">{{ color }}</a>
-                {% endfor %}
-            </div>
-        </div>
+        {% endfor %}
         </td>
-        <td>
+        <td class="text-center">
+            <div class="btn-group">
+                <span  class="text-primary" data-toggle="dropdown"><i class="fa fa-paint-brush"></i></span>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item " href="{% url 'jobs_color_set' %}?jid={{ job.id }}&color=*">сбросить</a>
+                    {% for color in colors %}
+                    <a class="dropdown-item " href="{% url 'jobs_color_set' %}?jid={{ job.id }}&color={{ color.id }}" style="background-color:{{ color.bg }};color:{{ color.text }};">{{ color }}</a>
+                    {% endfor %}
+                </div>
+            </div>
             <div class="btn-group">
                 <a href="{% url 'jobs_addedit' %}?id={{ job.id }}" class="text-primary"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
             </div>
             <div class="btn-group">
                 <span class="text-primary" data-toggle="dropdown"><i class="fa fa-remove" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></span>
-                <div class="dropdown-menu">
+                <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="{% url 'jobs_del' %}?id={{ job.id }}">Удалить</a>
                 </div>
             </div>

@@ -5,7 +5,7 @@
 <script>
   $( function() {
     var names = [{% for cmr in customers %}"{{ cmr.customer }}",{% endfor %}];
- 
+
     var accentMap = {
       "ё": "е",
       "Ё": "Е"
@@ -17,7 +17,7 @@
       }
       return ret;
     };
- 
+
     $( "#id_customer" ).autocomplete({
       source: function( request, response ) {
         var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
@@ -38,27 +38,10 @@
 
 <fieldset>
 {% csrf_token %}
-{% for field in form %}
 
-{% if field.field.widget.input_type == 'checkbox' %}
-<div class="form-group">
-  <div class="custom-control custom-switch">
-    <input type="checkbox" class="custom-control-input" id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% if field.value %}checked{% endif %}>
-    <label class="custom-control-label mb-0 mt-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
-  </div>
-</div>
-{% else %}
-<div class="form-group">
-<label class="mb-0 mt-2">{{ field.label_tag }}
-{% if field.field.required %}<i class="material-icons text-info" style="font-size:1em;" data-toggle="tooltip" data-placement="top" title="Обязательно к заполнению">new_releases</i>{% endif %}
-</label>
-{% if field.html_name == 'icon2' %}{{ field|parsetags }}{% else %}{{ field }}{% endif %}
-{% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
-</div>
-<div class="invalid-feedback">{{ field.errors }}</div>
-{% endif %}
-{% endfor %}
-
+{% with form=form %}
+{% include 's_form.html' %}
+{% endwith %}
 
 <hr>
 <button id="btok" type="submit" class="btn btn-primary">Сохранить</button>

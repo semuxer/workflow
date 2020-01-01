@@ -5,7 +5,7 @@
   <script>
   console.log('sort');
   $( function() {
-    $( "#sortable" ).sortable({ 
+    $( "#sortable" ).sortable({
         delay: 150,
         scroll: true,
         stop: function( event, ui ) {
@@ -25,19 +25,21 @@
   <table class="table table-hover">
     <thead>
       <tr class="bg-light">
+        <th>Id</th>
         <th>Нименование</th>
-        <th>Icon</th>
-        <th>Операции</th>
+        <th class="text-center">Icon</th>
+        <th class="text-center">Операции</th>
       </tr>
     </thead>
     <tbody id='sortable'>
     {% for tt in tts %}
       <tr id="{{ tt.id }}">
+        <td>{{ tt.id }}</td>
         <td>{{ tt.name }}</td>
-        <td>{{ tt|faicon:"text-success" }}</td>
-        <td>
+        <td class="text-center">{{ tt|faicon:"text-success" }}</td>
+        <td class="text-center">
         <a href="{% url 'tags_addedit' %}?id={{ tt.id }}"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
-        <a href="{% url 'tags_del' %}?id={{ tt.id }}"><i class="fa fa-remove"  data-toggle="tooltip" data-placement="top" title="Удалить"></i></a>
+        <!-- <a href="{% url 'tags_del' %}?id={{ tt.id }}"><i class="fa fa-remove"  data-toggle="tooltip" data-placement="top" title="Удалить"></i></a> -->
         </td>
       </tr>
     {% endfor %}

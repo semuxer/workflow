@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load fl_extras %}
+
+
+
+<div class="card">
+  <div class="card-body">
+<h3>Список пользователей системы</h3>
+
+<table class="table mt-3 mb-3">
+<thead>
+  <tr>
+    <th>Логин</th>
+    <th>Ф.И.</th>
+    <th class="text-center"><div><span>Доступ</span></div></th>
+    <th class="text-center"><div><span>Администратор</span></div></th>
+    <th class="text-center"><div><span>Создание заявок</span></div></th>
+    <th class="text-center"><div><span>Цвет заявок</span></div></th>
+    {% for tt in tts %}
+    <th class="text-center"><div><span>{{ tt }}</span></div></th>
+    {% endfor %}
+    <th class="text-center"><div><span>Операции</span></div></th>
+  </tr>
+</thead>
+<tbody>
+{% for usr in users %}
+  <tr>
+    <td>{{ usr.username }}</td>
+    <td>{{ usr.first_name }} {{ usr.last_name }}</td>
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=status">{% if usr.profile.status %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=admin">{% if usr.is_staff %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=task">{% if usr|chekrights:"task" %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=color">{% if usr|chekrights:"color" %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    {% for tt in tts %}
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&tid={{ tt.id }}">{% if usr|chekrights:tt  %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    {% endfor %}
+    <td class="text-center">
+      <div class="btn-group">
+          <span  class="text-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></span>
+          <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item " href="{% url 'user_edit' %}?uid={{ usr.id }}">Редактировать</a>
+              <a class="dropdown-item " href="{% url 'user_reset_password' %}?uid={{ usr.id }}">Задать пароль</a>
+          </div>
+      </div>
+
+
+    </td>
+
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+    </div>
+</div>
+
+{% endblock %}

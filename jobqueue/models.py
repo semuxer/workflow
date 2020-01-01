@@ -10,8 +10,9 @@ from taggit.managers import TaggableManager
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(verbose_name='Номер телефона', blank=True, max_length=20, help_text='Наприклад: +38 067 123 44 55')
+    phone = models.CharField(verbose_name='Номер телефона', blank=True, max_length=20, help_text='Пример: +38(067) 123-44-55')
     status = models.BooleanField(verbose_name='Доступ', default=True)
+    rights = TaggableManager()
     class Meta:
             ordering = ['user']
     def __str__(self):

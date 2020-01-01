@@ -30,7 +30,7 @@ def faicon(v, color):
 def parsetags(v):
     #print(v.html_name)
     txt = su.unescape(str(v))
-    return mark_safe(txt) 
+    return mark_safe(txt)
 
 @register.filter
 def is_current_page(request, param):
@@ -46,7 +46,7 @@ def addcss(v, param):
     if match:
         v = str(v).replace(match[0], "%s %s" % (match[0],param))
     else:
-        v = str(v).replace(">", ' class="%s">' % (param))  
+        v = str(v).replace(">", ' class="%s">' % (param))
     return mark_safe(v)
 
 @register.filter
@@ -58,6 +58,26 @@ def index(v, param):
     except:
         out = ""
     return out
+
+@register.filter
+def chekrights(v,param):
+    try:
+        nm = v.profile.rights.names()
+    except:
+        return False
+    try:
+        tn = "tag_%s" % (param.id)
+        if tn in nm:
+            out = True
+        else:
+            out = False
+    except:
+        if param in nm:
+            out = True
+        else:
+            out = False
+    return out
+
 
 @register.filter
 def yn(v):

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container">
+<h2>Добавить нового пользователя</h2>
+
+{{ user_form.errors }}
+
+<form method="post" enctype="multipart/form-data">
+<fieldset>
+{% csrf_token %}
+
+{% with form=user_form %}
+{% include 's_form.html' %}
+{% endwith %}
+
+{% with form=profile_form %}
+{% include 's_form.html' %}
+{% endwith %}
+
+<hr>
+<button type="submit" class="btn btn-primary">{% if worker %}Обновить{% else %}Добавить{% endif %}</button>
+</fieldset>
+</form>
+</div>
+
+<script type="text/javascript">
+  $("#id_phone").inputmask({"mask": "+38(999) 999-99-99"});
+  $('input').addClass('form-control');
+  $('input[type=checkbox]').removeClass('form-control').addClass('form-check-input');
+</script>
+
+{% endblock %}
