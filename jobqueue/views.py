@@ -69,7 +69,7 @@ def profile_view(request):
 def user_list(request):
     user = get_user_model()
     users = user.objects.all()
-    tts = Tagtype.objects.all()
+    tts = Tagtype.objects.all().exclude(techop__exact=True)
     return render(request, 'user_list.html', {'users':users, "tts":tts})
 
 @login_required
@@ -89,6 +89,11 @@ def user_adddel_right(request):
         else:
             user.profile.rights.add(tn)
     if (rg == "color") or (rg == "task"):
+        if rg in rights:
+            user.profile.rights.remove(rg)
+        else:
+            user.profile.rights.add(rg)
+    if rg == "allseeing":
         if rg in rights:
             user.profile.rights.remove(rg)
         else:
@@ -302,6 +307,7 @@ def jobs_list_sort(request):
 
 @login_required
 def jobs_list(request):
+    usr = request.user
     action = request.GET.get('action')
     print("action",action)
     search = None
@@ -309,8 +315,20 @@ def jobs_list(request):
         search = store(request,'search')
     elif action == "rst":
         request.session['search'] = None
-
+    elif action == "seeall":
+        request.session['seeall'] = True
+    elif action == "seemy":
+        request.session['seeall'] = False
+        seeall = False
+    
+    seeall = store(request,'seeall', False)
     print('search',search)
+    print('seeall',seeall)
+    rights = usr.profile.rights.names()
+    if 'allseeing' not in rights:
+        request.session['seeall'] = False
+        seeall = False
+
     cur_tag = store(request,'cur_tag')
     try:
         curtts = Tagtype.objects.get(id=cur_tag)
@@ -318,8 +336,12 @@ def jobs_list(request):
         curtts = None
     flt = store(request,'flt', 0)
     print(curtts,flt)
-    jobs = Jobs.objects.all()
-    tts = Tagtype.objects.all()
+    jobs = Jobs.objects.select_related('manager','color').all()
+    if not seeall:
+        jobs = jobs.filter(manager=usr.profile)
+
+    tts = Tagtype.objects.all().exclude(techop__exact=True)
+    tts_tp = Tagtype.objects.all().filter(techop__exact=True)
     if curtts:
         if flt == "0":
             jobs = jobs.exclude(tags__name__in=[cur_tag])
@@ -333,7 +355,7 @@ def jobs_list(request):
                 ).distinct()
     jobs = mypaginator(request,jobs)
     colors = Colors.objects.all()
-    return render(request, 'jobs_list.html', {'jobs':jobs,'tts':tts, 'curtts':curtts, 'colors':colors, })
+    return render(request, 'jobs_list.html', {'jobs':jobs,'tts':tts, 'tts_tp':tts_tp, 'curtts':curtts, 'colors':colors, 'seeall':seeall,'usr':usr })
 
 @login_required
 @user_task
@@ -343,19 +365,39 @@ def jobs_del(request):
     job.delete()
     return redirect('jobs_list')
 
-@login_required
 @user_task
+@login_required
 def jobs_addedit(request):
     id = request.GET.get('id')
     if id:
         job = get_object_or_404(Jobs, id=id)
     else:
         job = Jobs()
+    ###################### UNICUE VALUE LIST
     cont = {}
-    ls = list(Jobs.objects.exclude(customer__exact='').exclude(customer__isnull=True).order_by('customer').values('customer').distinct())
-    cont['customers'] =  ls
-    print(cont)
-    return uform('JobsForm', job, 'jobs_list', request, cont)
+    customer = list(Jobs.objects.exclude(customer__exact='').exclude(customer__isnull=True).order_by('customer').values_list('customer', flat=True).distinct()[:100])
+    #customers2 = list(Jobs.objects.exclude(customer__exact='').exclude(customer__isnull=True).order_by('customer').values_list('customer').distinct())
+    paper = list(Jobs.objects.exclude(paper__exact='').exclude(paper__isnull=True).order_by('paper').values_list('paper', flat=True).distinct()[:100])
+    cont['customer'] =  customer
+    cont['paper'] = paper
+    #print(customers2)
+    ###################### UNICUE VALUE LIST
+
+    if request.method == 'POST':
+        form = JobTechOpForm(request.POST, instance=job) # if post method then form will be validated
+        if form.is_valid():
+            cd = form.cleaned_data
+            #print('cd',cd)
+            form.save(profile=request.user.profile)
+            messages.success(request, 'Данные записи "%s" были успешно оновлены!' % (job,))
+            return redirect('jobs_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки.', extra_tags='danger')
+    else:
+        form = JobTechOpForm(instance=job) # blank form object just to pass context if not post method
+    return render(request, "form.html", {'form': form, "cont":cont})
+
+    #return ret
 
 @login_required
 @user_color
@@ -467,7 +509,7 @@ def uform(fname, inst, rurl, request, cont = {}):
                 messages.success(request, 'Данные записи "%s" были успешно добавлены!' % (inst))
             return redirect(rurl)
         else:
-            messages.error(request, 'Будь ласка, виправте помилки.', extra_tags='danger')
+            messages.error(request, 'Пожалуйста, исправьте ошибки.', extra_tags='danger')
     else:
         form = globals()[fname](instance=inst)
     print("!!!!!",form.form_title)

@@ -29,6 +29,19 @@
     {% endfor %}
     </ul>
 </div>
+{% if usr|chekrights:"allseeing" %}
+<div class="col">
+    <ul class="nav mb-2 nav-pills">
+      <li class="nav-item">
+        <a href="?action=seeall" class="nav-link {% if seeall %}btn-secondary{% endif %}"><span class="text-uppercase mr-2 font-weight-bold">Все</span><i class="fa fa-eye"></i></a>
+      </li>
+      <li class="nav-item">
+      
+        <a href="?action=seemy" class="nav-link {% if not seeall %}btn-secondary{% endif %}"><span class="text-uppercase mr-2 font-weight-bold">Свои</span><i class="fa fa-low-vision"></i></a>
+      </li>
+    </ul>
+</div>
+{% endif %}
 
 <div class="col">
 <form method="get">
@@ -69,41 +82,21 @@
   <table class="table">
     <thead>
       <tr class="bg-light">
+        <th class="text-center">Операции</th>
         <th>Нименование</th>
         <th>Заказчик</th>
+        <th>Тех. операции</th>
         <th>Дата отгрузки</th>
+        <th>Создал</th>
         <th class="text-center">Теги</th>
-        <th class="text-center">Операции</th>
       </tr>
     </thead>
     <tbody id='sortable'>
     {% for job in jobs %}
       <tr id="{{ job.id }}" {% if job.color %}style="background-color:{{ job.color.bg }};color:{{ job.color.text }};"{% endif %}>
-        <td>{{ job.name }}</td>
-        <td>{{ job.customer }}</td>
-        <td>{{ job.shipmentdatetime|date:"Y-m-d H:i D" }}</td>
-        <td class="text-center">
-        {% for tt in tts %}
-                {% if job|checktag:tt %}
-                    <div class="btn-group">
-                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-success" }}</span>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">отключить "{{ tt }}"</a>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="btn-group">
-                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-black-50" }}</span>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item " href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">включить "{{ tt }}"</a>
-                        </div>
-                    </div>
-                {% endif %}
-        {% endfor %}
-        </td>
         <td class="text-center">
             <div class="btn-group">
-                <span  class="text-primary" data-toggle="dropdown"><i class="fa fa-paint-brush"></i></span>
+                <span  class="text-primary" data-toggle="dropdown"><i class="fa fa-paint-brush" data-toggle="tooltip" data-placement="top" title="Задать цвет"></i></span>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item " href="{% url 'jobs_color_set' %}?jid={{ job.id }}&color=*">сбросить</a>
                     {% for color in colors %}
@@ -115,11 +108,65 @@
                 <a href="{% url 'jobs_addedit' %}?id={{ job.id }}" class="text-primary"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>
             </div>
             <div class="btn-group">
-                <span class="text-primary" data-toggle="dropdown"><i class="fa fa-remove" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></span>
+                <span class="text-primary" data-toggle="dropdown"><i class="fa fa-remove" data-toggle="tooltip" data-placement="top" title="Удалить"></i></span>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="{% url 'jobs_del' %}?id={{ job.id }}">Удалить</a>
                 </div>
             </div>
+        </td>
+        <td tabindex="-1" class="ppv" data-html="true" data-placement="bottom" data-toggle="popover" data-trigger="focus" 
+        title='<div class="text-nowrap"><b>{{ job.name|default:"" }}</b></div>' 
+        data-content='
+        {% if job.customer %}<div>Заказчик: <b>{{ job.customer|default:"" }}</b></div>{% endif %}
+        {% if job.paper %}<div>Бумага: <b>{{ job.paper|default:"" }}</b></div>{% endif %}
+        {% if job.info %}<div>Дополнительная информация: <b>{{ job.info|default:"" }}</b></div>{% endif %}
+        <div>Дата отгрузки: <b>{{ job.shipmentdatetime|default:"" }}</b></div>
+        <div>Тех операции: 
+        {% for tt in tts_tp %}
+                {% if job|checktag:tt %}
+                    <div class="btn-group">
+                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-success" }}</span>
+                    </div>
+                {% endif %}
+        {% endfor %}
+        </div>
+        <hr>
+        {% if job.manager %}<div>Создал: <b>{{ job.manager|default:"" }}</b></div>{% endif %}
+        <div>Дата внесения: <b>{{ job.createdatetime|default:"" }}</b></div>
+        '>
+
+        {{ job.name|default:"" }}
+        </td>
+        <td class="text-nowrap">{{ job.customer|default:"" }}</td>
+        <td class="text-left">
+        {% for tt in tts_tp %}
+                {% if job|checktag:tt %}
+                    <div class="btn-group">
+                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-success" }}</span>
+                    </div>
+                {% endif %}
+        {% endfor %}
+        </td>
+        <td class="text-nowrap">{{ job.shipmentdatetime|date:"Y-m-d H:i D" }}</td>
+        <td class="text-nowrap">{% if job.manager %}{{ job.manager.user.last_name }} {{ job.manager.user.first_name }}{% endif %}</td>
+        <td class="text-center text-nowrap">
+        {% for tt in tts %}
+                {% if job|checktag:tt %}
+                    <div class="btn-group">
+                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-success" }}</span>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">отключить "{{ tt }}"</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="btn-group">
+                        <span class="" data-toggle="dropdown">{{ tt|faicon:"text-light" }}</span>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item " href="{% url 'taglink' %}?jid={{ job.id }}&tid={{ tt.id }}">включить "{{ tt }}"</a>
+                        </div>
+                    </div>
+                {% endif %}
+        {% endfor %}
         </td>
       </tr>
     {% endfor %}
@@ -137,5 +184,14 @@
 
 
 <script src="/static/reload.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    $.noConflict();
+    $("[data-toggle=popover]").popover({container: 'body'});
+    $( ".ppv" ).click(function() {
+      $(this).focus();
+    });
+});
 
+</script>
 {% endblock %}

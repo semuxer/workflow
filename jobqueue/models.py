@@ -30,11 +30,14 @@ def save_user_profile(sender, instance, **kwargs):
 class Jobs(models.Model):
     customer = models.CharField(db_index=True, verbose_name='Заказчик', null=True, blank=True, default="", max_length=255)
     name = models.CharField(db_index=True, verbose_name='Название работы', default="", max_length=255)
+    paper = models.CharField(db_index=True, verbose_name='Бумага', null=True, blank=True, default="", max_length=255)
+    info = models.CharField(db_index=True, verbose_name='Дополнительная информация', null=True, blank=True, default="", max_length=255)
     createdatetime = models.DateTimeField(db_index=True, verbose_name='Дата и время создания', default=timezone.now)
     shipmentdatetime = models.DateTimeField(db_index=True, verbose_name='Дата и время отгрузки', default=timezone.now)
     order = models.IntegerField(db_index=True, default=1)
     tags = TaggableManager()
     color = models.ForeignKey('Colors', verbose_name='Цвет', null=True, blank=True, on_delete=models.SET_NULL)
+    manager = models.ForeignKey('Profile',verbose_name='Создал', null=True, blank=True, on_delete=models.SET_NULL)
     class Meta:
         ordering = ['order']
     def save(self, *args, **kwargs):
@@ -55,6 +58,7 @@ class Tagtype(models.Model):
     name = models.CharField(db_index=True, verbose_name='Название тега', unique=True, max_length=100)
     icon2 = models.CharField(db_index=True, verbose_name='Иконка', max_length=100, null=True, blank=True)
     seton = models.BooleanField(verbose_name='Установить для существующих задач', default=False, help_text='Операция может занять много времени при большом количестве задач в БД.')
+    techop = models.BooleanField(verbose_name='Технологическая операция', default=False)
     #icon = models.CharField(db_index=True, verbose_name='Иконка', max_length=100, null=True,blank=True,default="")
     order = models.IntegerField(db_index=True, default=0)
     class Meta:

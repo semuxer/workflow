@@ -27,6 +27,7 @@
       <tr class="bg-light">
         <th>Id</th>
         <th>Нименование</th>
+        <th>Ext</th>
         <th class="text-center">Icon</th>
         <th class="text-center">Операции</th>
       </tr>
@@ -36,6 +37,7 @@
       <tr id="{{ tt.id }}">
         <td>{{ tt.id }}</td>
         <td>{{ tt.name }}</td>
+        <td>{% if tt.techop %}тех. операция{% endif %}</td>
         <td class="text-center">{{ tt|faicon:"text-success" }}</td>
         <td class="text-center">
         <a href="{% url 'tags_addedit' %}?id={{ tt.id }}"><i class="fa fa-pencil-square-o" data-toggle="tooltip" data-placement="top" title="Редактировать"></i></a>

@@ -6,6 +6,7 @@ from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 import math
 from xml.sax import saxutils as su
+from jobqueue.models import Tagtype
 
 register = template.Library()
 
@@ -62,7 +63,14 @@ def index(v, param):
 @register.filter
 def chekrights(v,param):
     try:
+        tg = Tagtype.objects.filter(name=param)[0]
+        techop = tg.techop
+    except:
+        techop = False
+    #print('techop',techop)
+    try:
         nm = v.profile.rights.names()
+        print("nm", nm)
     except:
         return False
     try:
@@ -76,6 +84,8 @@ def chekrights(v,param):
             out = True
         else:
             out = False
+    if techop and 'task' in nm:
+        out = True
     return out
 
 

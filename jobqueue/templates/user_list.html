@@ -16,6 +16,7 @@
     <th class="text-center"><div><span>Доступ</span></div></th>
     <th class="text-center"><div><span>Администратор</span></div></th>
     <th class="text-center"><div><span>Создание заявок</span></div></th>
+    <th class="text-center"><div><span>Видить заявки всех</span></div></th>
     <th class="text-center"><div><span>Цвет заявок</span></div></th>
     {% for tt in tts %}
     <th class="text-center"><div><span>{{ tt }}</span></div></th>
@@ -31,6 +32,7 @@
     <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=status">{% if usr.profile.status %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
     <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=admin">{% if usr.is_staff %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
     <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=task">{% if usr|chekrights:"task" %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
+    <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=allseeing">{% if usr|chekrights:"allseeing" %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
     <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&rg=color">{% if usr|chekrights:"color" %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>
     {% for tt in tts %}
     <td class="text-center"><a href="{% url 'user_adddel_right' %}?uid={{ usr.id }}&tid={{ tt.id }}">{% if usr|chekrights:tt  %}<i class='fa fa-check-square-o'></i>{% else %}<i class='fa fa-square-o'></i>{% endif %}</a></td>

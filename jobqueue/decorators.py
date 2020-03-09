@@ -50,6 +50,12 @@ def user_tags(function):
             tt = Tagtype.objects.get(id=tid)
         except:
             tt = "неизвестный тег"
+        if tt.techop:
+            if "task" not in rights:
+                messages.error(request, 'У Вас нет прав для изменения тега %s. Данный тег можно изменять, имея права на "Создание заявок".' % (tt), extra_tags='danger')
+                raise PermissionDenied
+            else:
+                return function(request, *args, **kwargs)
         if tn in rights:
             return function(request, *args, **kwargs)
         else:

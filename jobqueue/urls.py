@@ -33,6 +33,8 @@ urlpatterns = [
     url(r'^accounts/usercreate/$', views.user_create, name='user_create'),
     url(r'^accounts/useredit/$', views.user_edit, name='user_edit'),
     url(r'^accounts/userresetpassword/$', views.user_reset_password, name='user_reset_password'),
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico'), name='favicon'),
+
     #url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     #url(r'^accounts/profile/$', views.profile, name='profile'),
     #url(r'^accounts/profileedit/$', views.profile_edit, name='profile_edit'),

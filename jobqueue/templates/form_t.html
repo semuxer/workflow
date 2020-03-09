@@ -2,10 +2,9 @@
 {% block content %}
 {% load fl_extras %}
 
-{% for  key, value in cont.items %}
 <script>
   $( function() {
-    var names = [{% for cmr in value %}"{{ cmr }}",{% endfor %}];
+    var names = [{% for cmr in customers %}"{{ cmr.customer }}",{% endfor %}];
 
     var accentMap = {
       "ё": "е",
@@ -19,7 +18,7 @@
       return ret;
     };
 
-    $( "#id_{{ key }}" ).autocomplete({
+    $( "#id_customer" ).autocomplete({
       source: function( request, response ) {
         var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
         response( $.grep( names, function( value ) {
@@ -29,10 +28,7 @@
       }
     });
   } );
-</script>
-
-{% endfor %}
-
+  </script>
 <div class="container">
   <h2>{{ form.form_title }}</h2>
 
@@ -60,7 +56,6 @@
 
 <script type="text/javascript">
   $('input').addClass('form-control');
-  $('select').addClass('form-control');
   $('input[type=checkbox]').removeClass('form-control').addClass('form-check-input');
 </script>
 

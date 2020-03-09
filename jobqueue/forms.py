@@ -69,12 +69,63 @@ class JobsForm(forms.ModelForm):
         model = Jobs
         exclude = ('createdatetime','order','tags',)
 
+class JobTechOpForm(forms.ModelForm):
+    form_title = 'Редактирование/добавление задания'
+    class Meta:
+        model = Jobs
+        fields = '__all__'
+        exclude = ('createdatetime','order','tags', 'manager')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            ctags = self.instance.tags.names()
+        except:
+            ctags = ()
+        print("ctags",ctags)
+        alltags = Tagtype.objects.filter(techop__exact=True)#.values_list('id', flat=True)
+        for tg in alltags:
+            field_name = '__tg__,%s' % (tg.id,)
+            if str(tg.id) in ctags:
+                state = True
+            else:
+                state = False
+            self.fields[field_name] = forms.BooleanField(label=tg.name, required=False)
+            self.fields[field_name].initial = state
+            print(tg.name, state)
+
+    def clean(self):
+        cleaned_data = super(JobTechOpForm, self).clean()
+        # name = self.cleaned_data.get('name')
+        # print('name',name.split())
+        # if len(name.split()) > 1:
+        #     raise forms.ValidationError("Наименование тега должно состоять из одного слова!")
+        return cleaned_data
+
+    def save(self, profile=None):
+        job = self.instance
+        job.manager = profile
+        job.save()
+        data = self.cleaned_data
+        alltags = Tagtype.objects.filter(techop__exact=True)
+        for tg in alltags:
+            job.tags.remove(str(tg.id))
+        for key,value in data.items():
+            print(key,value)
+            tg = key.split(",")
+            if tg[0]=="__tg__" and value:
+                print(job,value,str(tg[1]))
+                job.tags.add(str(tg[1]))
+            else:
+                pass
+                #setatr
+
+
 class TagtypeForm(forms.ModelForm):
     form_title = 'Редактирование/добавление тегов'
     icon2 =  forms.ChoiceField(label = "Icon", widget=forms.Select(attrs={'class': 'form-control'}), required=False, choices=stchose)
     class Meta:
         model = Tagtype
-        fields = ('name','icon2','seton',) #,
+        fields = ('name','icon2','seton','techop',) #,
     def clean(self):
         cleaned_data = super(TagtypeForm, self).clean()
         name = self.cleaned_data.get('name')
