@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^jobs/del/$', views.jobs_del, name='jobs_del'),
     url(r'^jobs/taglink/$', views.taglink, name='taglink'),
     url(r'^jobs/colorset/$', views.jobs_color_set, name='jobs_color_set'),
+    url(r'^jobs/tags/aply/$', views.job_tag2newtag, name='job_tag2newtag'),
     url(r'^config/tags/list/$', views.tags_list, name='tags_list'),
     url(r'^config/tags/list/sort/$', views.tags_list_sort, name='tags_list_sort'),
     url(r'^config/tags/addedit/$', views.tags_addedit, name='tags_addedit'),
@@ -45,11 +46,13 @@ urlpatterns = [
 # if settings.DEBUG:
 #     import debug_toolbar
 #     urlpatterns = [
-#         url(r'^__debug__/', include(debug_toolbar.urls)),
+#         url('__debug__/', include(debug_toolbar.urls)),
 #     ] + urlpatterns
 
-#if settings.DEBUG:
-#    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#path('__debug__/', include(debug_toolbar.urls)),
+
+if settings.DEBUG:
+   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 #handler404 = views.error_404
 #handler500 = views.error_500

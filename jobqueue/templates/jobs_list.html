@@ -121,7 +121,8 @@
         {% if job.paper %}<div>Бумага: <b>{{ job.paper|default:"" }}</b></div>{% endif %}
         {% if job.info %}<div>Дополнительная информация: <b>{{ job.info|default:"" }}</b></div>{% endif %}
         <div>Дата отгрузки: <b>{{ job.shipmentdatetime|default:"" }}</b></div>
-        <div>Тех операции: 
+        <div>Тех операции:
+        
         {% for tt in tts_tp %}
                 {% if job|checktag:tt %}
                     <div class="btn-group">

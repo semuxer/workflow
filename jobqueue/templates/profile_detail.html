@@ -29,6 +29,7 @@
 <div class="container mt-2">
   <a href="{% url 'user_edit' %}?uid=self" class="btn btn-info" role="button">Редактировать профиль</a>
   <a href="{% url 'user_reset_password' %}?uid=self" class="btn btn-info" role="button">Задать пароль</a>
+  {% if request.user.is_superuser %}<a href="{% url 'job_tag2newtag' %}" class="btn btn-info" role="button">Обновить теги</a>{% endif %}
 </div>
 
 {% endblock %}

@@ -13,6 +13,60 @@ class Profile(models.Model):
     phone = models.CharField(verbose_name='Номер телефона', blank=True, max_length=20, help_text='Пример: +38(067) 123-44-55')
     status = models.BooleanField(verbose_name='Доступ', default=True)
     rights = TaggableManager()
+    newrights = models.CharField(db_index=True, verbose_name='newrights', null=False, blank=False, default="", max_length=500)
+    def addrights(self, *args, **kwargs):
+        try:
+            nval = str(args[0])
+        except:
+            return False
+        if self.newrights:
+            ls = self.newrights.split(",")
+        else:
+            ls = []
+        if nval not in ls:
+            ls.append(nval)
+            self.newrights = ",".join(ls)
+            return True
+        else:
+            return False
+
+    def delrights(self, *args, **kwargs):
+        try:
+            nval = str(args[0])
+        except:
+            return False
+        if self.newrights:
+            ls = self.newrights.split(",")
+        else:
+            ls = []
+        try:
+            ls.remove(nval)
+            self.newrights = ",".join(ls)
+            return True
+        except:
+            return False
+
+    def checkrights(self, *args, **kwargs):
+        try:
+            nval = str(args[0])
+        except:
+            return False
+        if self.newrights:
+            ls = self.newrights.split(",")
+        else:
+            ls = []
+        if nval in ls:
+            return True
+        else:
+            return False
+
+    def listrights(self, *args, **kwargs):
+        if self.newrights:
+            ls = self.newrights.split(",")
+        else:
+            ls = []
+        return ls
+
     class Meta:
             ordering = ['user']
     def __str__(self):
@@ -36,15 +90,72 @@ class Jobs(models.Model):
     shipmentdatetime = models.DateTimeField(db_index=True, verbose_name='Дата и время отгрузки', default=timezone.now)
     order = models.IntegerField(db_index=True, default=1)
     tags = TaggableManager()
+    newtag = models.CharField(db_index=True, verbose_name='newtag', null=False, blank=False, default="", max_length=500)
+
     color = models.ForeignKey('Colors', verbose_name='Цвет', null=True, blank=True, on_delete=models.SET_NULL)
     manager = models.ForeignKey('Profile',verbose_name='Создал', null=True, blank=True, on_delete=models.SET_NULL)
     class Meta:
         ordering = ['order']
+
+    def addnt(self, *args, **kwargs):
+        try:
+            nval = str(args[0]).rjust(4,"0")
+        except:
+            return False
+        if self.newtag:
+            ls = self.newtag.split(",")
+        else:
+            ls = []
+        if nval not in ls:
+            ls.append(nval)
+            self.newtag = ",".join(ls)
+            return True
+        else:
+            return False
+
+
+    def delnt(self, *args, **kwargs):
+        try:
+            nval = str(args[0]).rjust(4,"0")
+        except:
+            return False
+        if self.newtag:
+            ls = self.newtag.split(",")
+        else:
+            ls = []
+        try:
+            ls.remove(nval)
+            self.newtag = ",".join(ls)
+            return True
+        except:
+            return False
+
+    def checknt(self, *args, **kwargs):
+        try:
+            nval = str(args[0]).rjust(4,"0")
+        except:
+            return False        
+        if self.newtag:
+            ls = self.newtag.split(",")
+        else:
+            ls = []
+        if nval in ls:
+            return True
+        else:
+            return False
+
+    def listnt(self, *args, **kwargs):
+        if self.newtag:
+            ls = self.newtag.split(",")
+        else:
+            ls = []
+        return ls
+
     def save(self, *args, **kwargs):
         # This means that the model isn't saved to the database yet
         if self._state.adding:
             # Get the maximum display_id value from the database
-            last_id = self.__class__.objects.all().aggregate(largest=Max('order'))['largest']
+            last_id = self.__class__.objects.all().aggregate(largest=Min('order'))['largest']
 
             # aggregate can return None! Check it first.
             # If it isn't none, just use the last ID specified (which should be the greatest) and add one to it
@@ -59,6 +170,7 @@ class Tagtype(models.Model):
     icon2 = models.CharField(db_index=True, verbose_name='Иконка', max_length=100, null=True, blank=True)
     seton = models.BooleanField(verbose_name='Установить для существующих задач', default=False, help_text='Операция может занять много времени при большом количестве задач в БД.')
     techop = models.BooleanField(verbose_name='Технологическая операция', default=False)
+    color = models.ForeignKey('Colors', verbose_name='Цвет', null=True, blank=True, on_delete=models.SET_NULL)
     #icon = models.CharField(db_index=True, verbose_name='Иконка', max_length=100, null=True,blank=True,default="")
     order = models.IntegerField(db_index=True, default=0)
     class Meta:

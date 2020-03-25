@@ -6,6 +6,31 @@ from django.utils import timezone
 from django.contrib.admin import widgets
 
 from .icons2 import stchose
+import re
+
+def parse_tags(lss):
+    regex = r"(?P<name>.*?)\s*\((?P<ext>.*)\)"
+    out = {}
+    for ls in lss:
+        #print(ls)
+        matches = re.search(regex, str(ls))
+        if matches:
+            name = matches.group('name')
+            #ext = matches.group('ext')
+            if type(out.get(name)) is not list:
+                out[name] = [(ls.id, ls.name)]
+            else:
+                out[name].append((ls.id, ls.name))
+                #print('-name',name)
+                #print(' ext',ext)
+        else:
+            if type(out.get(ls)) is not list:
+                out[str(ls)] = [(ls.id, ls.name)]
+            else:
+                out[str(ls)].append((ls.id, ls.name))
+            #print('-name',ls)
+    return out
+
 
 class UserForm(forms.ModelForm):
     form_title = 'Редактирование/добавление пользователя'
@@ -74,24 +99,41 @@ class JobTechOpForm(forms.ModelForm):
     class Meta:
         model = Jobs
         fields = '__all__'
-        exclude = ('createdatetime','order','tags', 'manager')
+        exclude = ('createdatetime','order','tags', 'manager','newtag')
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        try:
-            ctags = self.instance.tags.names()
-        except:
-            ctags = ()
-        print("ctags",ctags)
         alltags = Tagtype.objects.filter(techop__exact=True)#.values_list('id', flat=True)
-        for tg in alltags:
-            field_name = '__tg__,%s' % (tg.id,)
-            if str(tg.id) in ctags:
-                state = True
+        z = parse_tags(alltags)
+        #print("z",z)
+        for tkey, tval in z.items():
+            #print(tkey, tval, len(tval))
+            if len(tval) > 1:
+                choices = tval
+                state = None
+                for cst in tval:
+                    if self.instance.checknt(cst[0]):# str(cst[0]) in ctags:
+                        state = tval[0]
+                choices.insert(0,(None,"---------"))
+                field_name = '__tgl__,%s' % (tkey,)
+                self.fields[field_name] = forms.CharField(label=tkey, widget=forms.Select(choices=choices), required=False)   #forms.BooleanField(label=tg.name, required=False)
+                self.fields[field_name].initial = state
             else:
-                state = False
-            self.fields[field_name] = forms.BooleanField(label=tg.name, required=False)
-            self.fields[field_name].initial = state
-            print(tg.name, state)
+                field_name = '__tgc__,%s' % (tval[0][0],)
+                if self.instance.checknt(tval[0][0]):#if str(tval[0][0]) in ctags:
+                    state = True
+                else:
+                    state = False
+                self.fields[field_name] = forms.BooleanField(label=tval[0][1], required=False)
+                self.fields[field_name].initial = state
+        # for tg in alltags:
+        #     field_name = '__tg__,%s' % (tg.id,)
+        #     if str(tg.id) in ctags:
+        #         state = True
+        #     else:
+        #         state = False
+        #     self.fields[field_name] = forms.BooleanField(label=tg.name, required=False)
+        #     self.fields[field_name].initial = state
+        #     print(tg.name, state)
 
     def clean(self):
         cleaned_data = super(JobTechOpForm, self).clean()
@@ -104,20 +146,30 @@ class JobTechOpForm(forms.ModelForm):
     def save(self, profile=None):
         job = self.instance
         job.manager = profile
-        job.save()
         data = self.cleaned_data
         alltags = Tagtype.objects.filter(techop__exact=True)
-        for tg in alltags:
-            job.tags.remove(str(tg.id))
+        job.newtag = ""
+        #for tg in alltags:
+        #    job.tags.remove(str(tg.id))
         for key,value in data.items():
-            print(key,value)
-            tg = key.split(",")
-            if tg[0]=="__tg__" and value:
-                print(job,value,str(tg[1]))
-                job.tags.add(str(tg[1]))
+            print("-kv-",key,value)
+            tg = key.split(",",1)
+            if tg[0]=="__tgc__" and value:
+                print("tgc",value,"-1",str(tg[1]))
+                job.addnt(tg[1])
+                #job.tags.add(str(tg[1]))
+            elif tg[0]=="__tgl__" and value:
+                try:
+                    ctg = Tagtype.objects.get(id=value)
+                    job.addnt(value)
+                    #job.tags.add(str(value))
+                except:
+                    pass
+                print("ctg",ctg)
+                print("tgl",job,"-1",value,"-2",tg)
             else:
                 pass
-                #setatr
+        job.save()
 
 
 class TagtypeForm(forms.ModelForm):
@@ -125,13 +177,13 @@ class TagtypeForm(forms.ModelForm):
     icon2 =  forms.ChoiceField(label = "Icon", widget=forms.Select(attrs={'class': 'form-control'}), required=False, choices=stchose)
     class Meta:
         model = Tagtype
-        fields = ('name','icon2','seton','techop',) #,
+        fields = ('name','icon2','seton','techop','color',) #,
     def clean(self):
         cleaned_data = super(TagtypeForm, self).clean()
         name = self.cleaned_data.get('name')
         print('name',name.split())
-        if len(name.split()) > 1:
-            raise forms.ValidationError("Наименование тега должно состоять из одного слова!")
+        # if len(name.split()) > 1:
+        #     raise forms.ValidationError("Наименование тега должно состоять из одного слова!")
         return cleaned_data
 
 class ColorsForm(forms.ModelForm):

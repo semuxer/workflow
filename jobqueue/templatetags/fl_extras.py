@@ -13,11 +13,8 @@ register = template.Library()
 #my filter
 @register.filter
 def checktag(job, tt):
-    th = job.tags.names()
-    if str(tt.id) in th:
-        return True
-    else:
-        return False
+    th = job.checknt(tt.id)
+    return th
 
 @register.filter
 def faicon(v, color):
@@ -62,30 +59,28 @@ def index(v, param):
 
 @register.filter
 def chekrights(v,param):
-    try:
-        tg = Tagtype.objects.filter(name=param)[0]
-        techop = tg.techop
-    except:
-        techop = False
+    #print('param',param)
+    # try:
+    #     tg = Tagtype.objects.filter(name=param)[0]
+    #     techop = tg.techop
+    # except:
+    #     techop = False
     #print('techop',techop)
     try:
-        nm = v.profile.rights.names()
-        print("nm", nm)
-    except:
-        return False
-    try:
         tn = "tag_%s" % (param.id)
-        if tn in nm:
+        if v.profile.checkrights(tn):
             out = True
         else:
             out = False
     except:
-        if param in nm:
+        if v.profile.checkrights(param):
             out = True
         else:
             out = False
-    if techop and 'task' in nm:
-        out = True
+    #if techop and v.profile.checkrights('task'):
+    #if v.profile.checkrights('task'):
+    #    out = True
+    #print(param, out)
     return out
 
 

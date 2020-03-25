@@ -68,7 +68,7 @@ def profile_view(request):
 @user_admin
 def user_list(request):
     user = get_user_model()
-    users = user.objects.all()
+    users = user.objects.all().select_related('profile')
     tts = Tagtype.objects.all().exclude(techop__exact=True)
     return render(request, 'user_list.html', {'users':users, "tts":tts})
 
@@ -79,25 +79,19 @@ def user_adddel_right(request):
     tag = request.GET.get("tid")
     rg = request.GET.get("rg")
     user = get_object_or_404(get_user_model(), id=uid)
-    rights = user.profile.rights.names()
     if tag:
         tt = get_object_or_404(Tagtype, id=tag)
         tn = "tag_%s" % (tag)
         print(tn)
-        if tn in rights:
-            user.profile.rights.remove(tn)
+        if user.profile.checkrights(tn):
+            user.profile.delrights(tn)
         else:
-            user.profile.rights.add(tn)
-    if (rg == "color") or (rg == "task"):
-        if rg in rights:
-            user.profile.rights.remove(rg)
+            user.profile.addrights(tn)
+    if (rg == "color") or (rg == "task") or (rg == "allseeing"):
+        if user.profile.checkrights(rg):
+            user.profile.delrights(rg)
         else:
-            user.profile.rights.add(rg)
-    if rg == "allseeing":
-        if rg in rights:
-            user.profile.rights.remove(rg)
-        else:
-            user.profile.rights.add(rg)
+            user.profile.addrights(rg)
     if rg == 'admin':
         if request.user == user:
             messages.error(request, 'Запрещено изменять права администратора для текущего пользователя!', extra_tags='danger')
@@ -113,8 +107,8 @@ def user_adddel_right(request):
             messages.error(request, 'Запрещено изменять права доступа для superuser!', extra_tags='danger')
         else:
             user.profile.status = not user.profile.status
-            user.profile.save()
-
+    user.profile.save()
+    print("newrights",user.profile.newrights)
     return redirect('user_list')
 
 
@@ -306,6 +300,15 @@ def jobs_list_sort(request):
     return redirect('jobs_list')
 
 @login_required
+def job_tag2newtag(request):
+    jobs = Jobs.objects.all()
+    for job in jobs:
+        for name in job.tags.names():
+            job.addnt( str(name).rjust(4,"0"))
+            job.save()
+    return redirect('profile_view')
+
+@login_required
 def jobs_list(request):
     usr = request.user
     action = request.GET.get('action')
@@ -336,17 +339,20 @@ def jobs_list(request):
         curtts = None
     flt = store(request,'flt', 0)
     print(curtts,flt)
-    jobs = Jobs.objects.select_related('manager','color').all()
+    jobs = Jobs.objects.select_related('manager','color').all().prefetch_related('tags')
     if not seeall:
         jobs = jobs.filter(manager=usr.profile)
 
     tts = Tagtype.objects.all().exclude(techop__exact=True)
     tts_tp = Tagtype.objects.all().filter(techop__exact=True)
     if curtts:
+        tmpvar = str(curtts.id).rjust(4,"0")
         if flt == "0":
-            jobs = jobs.exclude(tags__name__in=[cur_tag])
+            jobs = jobs.exclude(newtag__icontains=tmpvar)
+            #jobs = jobs.exclude(tags__name__in=[cur_tag])
         elif flt == "1":
-            jobs = jobs.filter(tags__name__in=[cur_tag])
+            jobs = jobs.filter(newtag__icontains=tmpvar)
+            # jobs = jobs.filter(tags__name__in=[cur_tag])
     if search:
         slist = str2list(search)
         jobs = jobs.filter(
@@ -444,7 +450,9 @@ def tags_addedit(request):
     if tt.seton:
         jobs = Jobs.objects.all()
         for job in jobs:
-            job.tags.add(str(tt.id))
+            job.addnt(tt.id)
+            job.save()
+            #job.tags.add(str(tt.id))
     return ret
 
 @login_required
@@ -523,9 +531,20 @@ def taglink(request):
     job = get_object_or_404(Jobs, id=jid)
     tid = request.GET.get('tid')
     tt = get_object_or_404(Tagtype, id=tid)
-    ctags = job.tags.names()
-    if tid in ctags:
-        job.tags.remove(str(tt.id))
+    if job.checknt(tt.id):
+        #job.newtag = ""
+        job.delnt(tt.id)
+        #job.tags.remove(str(tt.id))
+        if tt.color:
+            job.color = None
+        job.save()
+        print(job.newtag)
     else:
-        job.tags.add(str(tt.id))
+        #job.newtag = ""
+        job.addnt(tt.id)
+        #job.tags.add(str(tt.id))
+        if tt.color:
+            job.color = tt.color
+        job.save()
+        print(job.newtag)
     return redirect('jobs_list')
