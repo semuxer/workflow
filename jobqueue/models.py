@@ -168,6 +168,7 @@ class Jobs(models.Model):
 class Tagtype(models.Model):
     name = models.CharField(db_index=True, verbose_name='Название тега', unique=True, max_length=100)
     icon2 = models.CharField(db_index=True, verbose_name='Иконка', max_length=100, null=True, blank=True)
+    icon3 = models.TextField(verbose_name='Иконка своя', null=True, blank=True)
     seton = models.BooleanField(verbose_name='Установить для существующих задач', default=False, help_text='Операция может занять много времени при большом количестве задач в БД.')
     techop = models.BooleanField(verbose_name='Технологическая операция', default=False)
     color = models.ForeignKey('Colors', verbose_name='Цвет', null=True, blank=True, on_delete=models.SET_NULL)

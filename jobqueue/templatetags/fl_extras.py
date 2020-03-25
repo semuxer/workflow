@@ -18,10 +18,19 @@ def checktag(job, tt):
 
 @register.filter
 def faicon(v, color):
-    try:
-        txt = '<i class="%s %s" data-toggle="tooltip" data-placement="top" title="%s"></i>' % (v.icon2, color, v.name)
-    except:
-        txt = ""
+    rgb = {"text-success":"rgb(40, 167, 69)", "text-black-50":"rgba(0,0,0,.5)", "text-light":"rgb(248, 249, 250)" }
+    if v.icon3:
+        try:
+            txt = '<span data-toggle="tooltip" data-placement="top"><style>svg {width: 1em; height: 1em;}</style>%s</span>' % (v.icon3)
+            txt = re.sub(r'fill="#(?!fff).*?"', 'fill="%s"' % rgb.get(color), txt)
+            txt = re.sub(r'<title>.*?<\/title>', '<title>%s</title>' % v.name, txt)
+        except:
+            txt = ""
+    else:
+        try:
+            txt = '<i class="%s %s" data-toggle="tooltip" data-placement="top" title="%s"></i>' % (v.icon2, color, v.name)
+        except:
+            txt = ""
     return mark_safe(txt)
 
 @register.filter

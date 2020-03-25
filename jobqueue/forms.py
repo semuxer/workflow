@@ -177,7 +177,7 @@ class TagtypeForm(forms.ModelForm):
     icon2 =  forms.ChoiceField(label = "Icon", widget=forms.Select(attrs={'class': 'form-control'}), required=False, choices=stchose)
     class Meta:
         model = Tagtype
-        fields = ('name','icon2','seton','techop','color',) #,
+        fields = ('name','icon2','icon3','seton','techop','color',) #,
     def clean(self):
         cleaned_data = super(TagtypeForm, self).clean()
         name = self.cleaned_data.get('name')

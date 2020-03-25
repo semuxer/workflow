@@ -83,8 +83,8 @@
     <thead>
       <tr class="bg-light">
         <th class="text-center">Операции</th>
-        <th>Нименование</th>
         <th>Заказчик</th>
+        <th>Нименование</th>
         <th>Тех. операции</th>
         <th>Дата отгрузки</th>
         <th>Создал</th>
@@ -114,6 +114,7 @@
                 </div>
             </div>
         </td>
+        <td class="text-nowrap">{{ job.customer|default:"" }}</td>
         <td tabindex="-1" class="ppv" data-html="true" data-placement="bottom" data-toggle="popover" data-trigger="focus" 
         title='<div class="text-nowrap"><b>{{ job.name|default:"" }}</b></div>' 
         data-content='
@@ -138,7 +139,6 @@
 
         {{ job.name|default:"" }}
         </td>
-        <td class="text-nowrap">{{ job.customer|default:"" }}</td>
         <td class="text-left">
         {% for tt in tts_tp %}
                 {% if job|checktag:tt %}
