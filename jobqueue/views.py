@@ -32,7 +32,7 @@ import urllib
 import operator
 import re
 import calendar
-from monthdelta import monthdelta
+# from monthdelta import monthdelta
 from django.db.models.fields import DurationField
 from django.template.loader import render_to_string, get_template
 import sys
